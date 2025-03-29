@@ -1,0 +1,60 @@
+services:
+    application:
+       build: 
+           dockerfile: ./Dockerfile
+
+       ports:
+         - 7000:15555
+
+       depends_on:
+         - db
+       
+       env_file:
+           - "./.env"
+       networks:
+           - postgres-network 
+
+    db:
+        image: postgres
+    
+        volumes:
+            - ./pgdata:/var/lib/postgresql/data
+
+        expose:
+          - 5432
+
+        env_file:
+            - "./.env"
+
+        networks:
+          - postgres-network
+
+    pgadmin:
+        image: dpage/pgadmin4
+
+        depends_on:
+            - db
+
+        environment:
+            PGADMIN_CONFIG_SERVER_MODE: 'False'
+
+        volumes:
+          - ./pgadmin:/var/lib/pgadmin:rw
+
+        ports:
+            - "105:80"
+
+        user: "${UID}:${GID}"
+
+        restart: unless-stopped
+
+        env_file:
+            - "./.env"
+
+        networks:
+            - postgres-network
+
+networks:
+    postgres-network:
+      driver: bridge
+
