@@ -18,9 +18,9 @@ async def init_redis():
     user = os.getenv("REDIS_USER")
     password = os.getenv("REDIS_PASSWORD")
 
-    __factory = await asyncio_redis.Connection.create(
-        host=host, port=port, password=password
-    )
+    __factory = await asyncio_redis.Connection.create(host=host, port=int(port))
+
+    print(__factory)
 
 
 def get_connection():

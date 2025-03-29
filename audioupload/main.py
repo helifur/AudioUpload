@@ -3,12 +3,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from audioupload.database.db_init import global_init
+from audioupload.database.redis_init import init_redis
 from audioupload.routes import auth, upload, user
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await global_init()
+    await init_redis()
     yield
 
 
