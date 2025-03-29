@@ -1,7 +1,19 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
-from audioupload.routes import auth
+from audioupload.database.db_init import global_init
+from audioupload.routes import auth, upload, user
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global_init()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth.auth_router)
+app.include_router(upload.upload_router)
+app.include_router(user.user_router)
