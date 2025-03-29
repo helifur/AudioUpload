@@ -8,7 +8,7 @@ from audioupload.routes import auth, upload, user
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global_init()
+    await global_init()
     yield
 
 

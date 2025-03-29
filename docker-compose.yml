@@ -1,19 +1,4 @@
 services:
-    application:
-       build: 
-           dockerfile: ./Dockerfile
-
-       ports:
-         - 7000:15555
-
-       depends_on:
-         - db
-       
-       env_file:
-           - "./.env"
-       networks:
-           - postgres-network 
-
     db:
         image: postgres
     
@@ -54,7 +39,21 @@ services:
         networks:
             - postgres-network
 
+    redis:
+      image: redis:latest
+      env_file:
+        - .env
+      ports:
+        - "6380:6379"
+      volumes:
+        - redisdata:/data
+      networks:
+        - postgres-network
+
 networks:
     postgres-network:
       driver: bridge
+
+volumes:
+  redisdata:
 

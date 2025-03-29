@@ -1,15 +1,19 @@
 import os
 
-import sqlalchemy as sa
 import sqlalchemy.exc as exc
 import sqlalchemy.orm as orm
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 __factory = None
 load_dotenv()
 
 
-def global_init() -> None:
+async def global_init() -> None:
     """Initialize a database"""
     global __factory
 
@@ -20,18 +24,19 @@ def global_init() -> None:
     password = os.getenv("POSTGRES_PASSWORD")
     db_name = os.getenv("POSTGRES_DB")
 
-    engine = sa.create_engine(
-        f"postgresql://{user}:{password}@db:5432/{db_name}"
+    engine = create_async_engine(
+        f"postgresql+asyncpg://{user}:{password}@172.26.0.2:5432/{db_name}"
     )
 
-    __factory = orm.sessionmaker(bind=engine)
+    __factory = async_sessionmaker(bind=engine)
 
     from ..models import __all_models
 
-    __all_models.base.Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(__all_models.base.Base.metadata.create_all)
 
 
-def create_session() -> orm.Session:
+async def create_session() -> AsyncSession:
     """Create a session"""
     global __factory
     return __factory()

@@ -1,4 +1,4 @@
-from sqlalchemy import VARCHAR
+from sqlalchemy import VARCHAR, ForeignKey
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -14,4 +14,4 @@ class AudioFile(Base):
 
     file_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     path: Mapped[str] = mapped_column(VARCHAR(20))
-    owner_id: Mapped["User"] = relationship()
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
