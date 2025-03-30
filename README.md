@@ -15,7 +15,7 @@ A service that represents audio management system with Yandex ID authorization
 Clone this repo
 
 ```bash
-git clone https://github.com/helifur
+git clone https://github.com/helifur/AudioUpload
 ```
 
 *Before proceeding go to https://yandex.ru/dev/id/doc/ru/how-to and learn how to create Yandex application to integrate authorization*
