@@ -27,7 +27,7 @@ async def get_user(
     )
 
     return {
-        "user_id": user["user_id"],
+        "yandex_user_id": user["yandex_user_id"],
         "name": user["first_name"],
         "filenames": [elem["path"].split("/")[-1] for elem in files],
         "filepaths": [elem["path"] for elem in files],
@@ -64,7 +64,7 @@ async def edit_user(
 @user_router.delete("/user_delete")
 async def delete_user(
     token: Annotated[str | None, Header(), Depends(authenticate_user)],
-    candidate_id: int,
+    candidate_yandex_id: str,
 ):
     user_data = await get_user_local_data_from_token(token)
     user_role = await RoleRepository.get_one_or_none(role_id=user_data.role_id)
@@ -72,7 +72,9 @@ async def delete_user(
     if user_role.name != "superuser":
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Not allowed!")
 
-    if not await UserRepository.get_one_or_none(user_id=candidate_id):
+    if not await UserRepository.get_one_or_none(
+        yandex_user_id=candidate_yandex_id
+    ):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found!")
 
     candidate_data = await get_user_yandex_data_from_token(token)
@@ -91,4 +93,4 @@ async def delete_user(
     except FileNotFoundError:
         pass
 
-    return await UserRepository.delete(candidate_id)
+    return await UserRepository.delete(candidate_yandex_id)

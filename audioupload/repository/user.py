@@ -26,7 +26,7 @@ class UserRepository(BaseRepository):
     @classmethod
     async def delete(cls, id_) -> bool:
         async with await create_session() as session:
-            query = delete(cls.model).filter_by(user_id=id_)
+            query = delete(cls.model).filter_by(yandex_user_id=id_)
             await session.execute(query)
             await session.commit()
             return True

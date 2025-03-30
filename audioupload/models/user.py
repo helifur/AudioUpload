@@ -1,4 +1,4 @@
-from sqlalchemy import INTEGER, VARCHAR, ForeignKey
+from sqlalchemy import VARCHAR, ForeignKey
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,

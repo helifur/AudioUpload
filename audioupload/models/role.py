@@ -10,5 +10,5 @@ from audioupload.models.base import Base
 class Role(Base):
     __tablename__ = "roles"
 
-    role_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    role_id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
     name: Mapped[str] = mapped_column(VARCHAR(20))

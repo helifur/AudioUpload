@@ -37,4 +37,4 @@ COPY . .
 # Install Dependencies
 RUN poetry install --no-interaction --no-cache
 
-CMD ["poetry", "run", "uvicorn", "audioupload.main:app", "--reload", "--host", "0.0.0.0"]
+CMD ["poetry", "run", "uvicorn", "audioupload.main:app", "--host", "0.0.0.0", "--lifespan", "on"]

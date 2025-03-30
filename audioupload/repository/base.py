@@ -41,6 +41,7 @@ class BaseRepository(AbstractRepository):
     async def insert(cls, **values) -> None:
         async with await create_session() as session:
             query = insert(cls.model).values(**values)
+            print("INSERT")
             result = await session.execute(query)
             await session.commit()
 

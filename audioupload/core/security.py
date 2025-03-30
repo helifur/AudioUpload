@@ -10,9 +10,8 @@ load_dotenv()
 
 
 async def get_refresh_token_by_user(user_id: str):
-    connection = get_connection()
-
-    return await connection.get(f"refresh_{user_id}")
+    async with await get_connection() as conn:
+        return await conn.get(f"refresh_{user_id}")
 
 
 async def get_user_yandex_data_from_token(token):
@@ -26,9 +25,8 @@ async def get_user_local_data_from_token(token):
 
 
 async def set_refresh_token_to_user(token, user_id):
-    connection = get_connection()
-
-    await connection.set(f"refresh_{user_id}", token)
+    async with await get_connection() as conn:
+        await conn.set(f"refresh_{user_id}", token)
 
 
 async def authenticate_user(token: str):

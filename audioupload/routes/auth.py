@@ -1,3 +1,4 @@
+import logging
 import os
 
 from dotenv import load_dotenv
@@ -17,15 +18,15 @@ load_dotenv()
 
 
 @auth_router.post("/auth")
-async def auth():
+async def auth(secret_code: str):
     yandex_oauth = AsyncYandexOAuth(
         client_id=os.getenv("CLIENT_ID"),
         client_secret=os.getenv("CLIENT_SECRET"),
         redirect_uri=os.getenv("REDIRECT_URI"),
     )
-    token = yandex_oauth.get_token_from_code(os.getenv("SECRET_CODE"))
+    token = await yandex_oauth.get_token_from_code(secret_code)
 
-    user_data = await get_user_yandex_data_from_token(token["access_token"])
+    user_data = await get_user_yandex_data_from_token(token.access_token)
 
     if not await UserRepository.get_one_or_none(yandex_user_id=user_data.id):
         await UserRepository.insert(
@@ -35,22 +36,24 @@ async def auth():
             role_id=0,
         )
 
-    await set_refresh_token_to_user(token["refresh_token"], user_data.id)
+    await set_refresh_token_to_user(token.refresh_token, user_data.id)
 
     return token
 
 
 @auth_router.post("/refresh")
-async def refresh(user_id: str):
+async def refresh(yandex_user_id: str):
     yandex_oauth = AsyncYandexOAuth(
         client_id=os.getenv("CLIENT_ID"),
         client_secret=os.getenv("CLIENT_SECRET"),
         redirect_uri=os.getenv("REDIRECT_URI"),
     )
 
-    refresh_token = await get_refresh_token_by_user(user_id)
+    refresh_token = (await get_refresh_token_by_user(yandex_user_id)).decode(
+        "utf-8"
+    )
     new_tokens = await yandex_oauth.get_token_from_refresh_token(refresh_token)
 
-    await set_refresh_token_to_user(new_tokens.refresh_token, user_id)
+    await set_refresh_token_to_user(new_tokens.refresh_token, yandex_user_id)
 
     return new_tokens
