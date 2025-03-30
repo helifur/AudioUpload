@@ -20,8 +20,6 @@ async def init_redis():
 
     __factory = await asyncio_redis.Connection.create(host=host, port=int(port))
 
-    print(__factory)
-
 
 def get_connection():
     return __factory

@@ -21,6 +21,14 @@ class BaseRepository(AbstractRepository):
     model = None
 
     @classmethod
+    async def get_all(cls, limit, skip, **filter_by):
+        async with await create_session() as session:
+            query = select(cls.model.__table__.columns)
+            result = await session.execute(query)
+            mapping_result = result.mappings().all()
+            return [elem for elem in mapping_result]
+
+    @classmethod
     async def get_one_or_none(cls, **filter_by):
         async with await create_session() as session:
             query = select(cls.model.__table__.columns).filter_by(**filter_by)

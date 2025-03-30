@@ -8,8 +8,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from yandexid import AsyncYandexOAuth
 
 from audioupload.core.security import (
-    get_current_user_from_token,
     get_refresh_token_by_user,
+    get_user_yandex_data_from_token,
     set_refresh_token_to_user,
 )
 from audioupload.database import redis_init
@@ -24,33 +24,24 @@ load_dotenv()
 
 @auth_router.post("/auth")
 async def auth():
-    # yandex_oauth = YandexOAuth(
-    #     client_id=os.getenv("CLIENT_ID"),
-    #     client_secret=os.getenv("CLIENT_SECRET"),
-    #     redirect_uri=os.getenv("REDIRECT_URI"),
-    # )
-    # token = yandex_oauth.get_token_from_code(os.getenv("SECRET_CODE"))
-    # print(token)
-    token = {
-        "access_token": "y0__xDYhrWdAhiiwDYgk4fh1RI3qMGnGcLVMf2YWeyYX5OKGnW6Og",
-        "token_type": "bearer",
-        "expires_in": 31517526,
-        "refresh_token": "1:AAA:1:QUYAc_BjJYP1uT11:HMd4DRLiX76LsV6fjrIyvf3ZD-Ba1iVE7iLoekKuE9TlyUywEyWnKJsTrthagGxr7p6Phms:9Mp5bk63JuTEJ-jRYuZS2A",
-    }
+    yandex_oauth = AsyncYandexOAuth(
+        client_id=os.getenv("CLIENT_ID"),
+        client_secret=os.getenv("CLIENT_SECRET"),
+        redirect_uri=os.getenv("REDIRECT_URI"),
+    )
+    token = yandex_oauth.get_token_from_code(os.getenv("SECRET_CODE"))
 
-    user_data = await get_current_user_from_token(token["access_token"])
+    user_data = await get_user_yandex_data_from_token(token.access_token)
 
-    if not await UserRepository.get_one_or_none(
-        yandex_user_id=int(user_data.id)
-    ):
+    if not await UserRepository.get_one_or_none(yandex_user_id=user_data.id):
         await UserRepository.insert(
-            yandex_user_id=int(user_data.id),
+            yandex_user_id=user_data.id,
             first_name=user_data.first_name,
             last_name=user_data.last_name,
             role_id=0,
         )
 
-    await set_refresh_token_to_user(token["refresh_token"], user_data.id)
+    await set_refresh_token_to_user(token.refresh_token, user_data.id)
 
     return token
 

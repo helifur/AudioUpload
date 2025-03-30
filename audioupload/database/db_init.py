@@ -25,7 +25,7 @@ async def global_init() -> None:
     db_name = os.getenv("POSTGRES_DB")
 
     engine = create_async_engine(
-        f"postgresql+asyncpg://{user}:{password}@172.26.0.2:5432/{db_name}"
+        f"postgresql+asyncpg://{user}:{password}@172.26.0.3:5432/{db_name}"
     )
 
     __factory = async_sessionmaker(bind=engine)

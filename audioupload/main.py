@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from audioupload.database.db_init import global_init
 from audioupload.database.redis_init import init_redis
-from audioupload.routes import auth, upload, user
+from audioupload.routes import auth, upload, users
 
 
 @asynccontextmanager
@@ -18,4 +18,4 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth.auth_router)
 app.include_router(upload.upload_router)
-app.include_router(user.user_router)
+app.include_router(users.user_router)

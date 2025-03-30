@@ -3,7 +3,7 @@ services:
         image: postgres
     
         volumes:
-            - ./pgdata:/var/lib/postgresql/data
+            - pgdata:/var/lib/postgresql/data
 
         expose:
           - 5432
@@ -24,7 +24,7 @@ services:
             PGADMIN_CONFIG_SERVER_MODE: 'False'
 
         volumes:
-          - ./pgadmin:/var/lib/pgadmin:rw
+          - pgadmin:/var/lib/pgadmin:rw
 
         ports:
             - "105:80"
@@ -55,5 +55,7 @@ networks:
       driver: bridge
 
 volumes:
+  pgdata:
+  pgadmin:
   redisdata:
 
