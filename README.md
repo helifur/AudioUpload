@@ -3,6 +3,13 @@
 A service that represents audio management system with Yandex ID authorization
 
 
+## Features
+
+- Full Yandex ID support
+- PostgreSQL and Redis to store data
+- Alembic migrations to properly update roles
+
+
 ## Installation
 
 Clone this repo
@@ -30,12 +37,16 @@ After all steps above just start docker containers like this:
 ```bash
 docker compose up --build
 ```
+
+To open PGAdmin, go to `localhost:105`.
+
+To try methods, go to `localhost:8000/docs`.
 ## Support
 
 - *How to get secret_code that requires `auth` method?*
 
     You need to open this link in your browser:
-    `https://oauth.yandex.ru/authorize?response_type=code&client_id=8d7e704d59674519b7d9a0e1c458b5d5`, where `client_id` is your `ClientID` in the Yandex OAuth dashboard.
+    `https://oauth.yandex.ru/authorize?response_type=code&client_id=CLIENT_ID`, where `CLIENT_ID` is your `ClientID` in the Yandex OAuth dashboard.
     
     Remember that `secret_code` is **ONE-TIME USE**!!! In order to get a new one, just follow the link again.
 
