@@ -1,10 +1,7 @@
 import os
-from typing import Annotated
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends
-from fastapi.responses import RedirectResponse
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter
 from yandexid import AsyncYandexOAuth
 
 from audioupload.core.security import (
@@ -12,9 +9,6 @@ from audioupload.core.security import (
     get_user_yandex_data_from_token,
     set_refresh_token_to_user,
 )
-from audioupload.database import redis_init
-from audioupload.database.redis_init import init_redis
-from audioupload.models.user import User
 from audioupload.repository.user import UserRepository
 
 auth_router = APIRouter()
@@ -31,7 +25,7 @@ async def auth():
     )
     token = yandex_oauth.get_token_from_code(os.getenv("SECRET_CODE"))
 
-    user_data = await get_user_yandex_data_from_token(token.access_token)
+    user_data = await get_user_yandex_data_from_token(token["access_token"])
 
     if not await UserRepository.get_one_or_none(yandex_user_id=user_data.id):
         await UserRepository.insert(
@@ -41,7 +35,7 @@ async def auth():
             role_id=0,
         )
 
-    await set_refresh_token_to_user(token.refresh_token, user_data.id)
+    await set_refresh_token_to_user(token["refresh_token"], user_data.id)
 
     return token
 

@@ -42,3 +42,16 @@ class BaseRepository(AbstractRepository):
             query = insert(cls.model).values(**values)
             result = await session.execute(query)
             await session.commit()
+
+    @classmethod
+    async def update(cls, id_, **values) -> id:
+        async with await create_session() as session:
+            query = (
+                update(cls.model)
+                .filter_by(id=id_)
+                .values(**values)
+                .returning(cls.model.id)
+            )
+            result = await session.execute(query)
+            await session.commit()
+            return result.scalar()
