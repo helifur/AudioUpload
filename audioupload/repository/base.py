@@ -19,9 +19,10 @@ class AbstractRepository(ABC):
 
 class BaseRepository(AbstractRepository):
     model = None
+    model_schema = None
 
     @classmethod
-    async def get_all(cls, limit, skip, **filter_by):
+    async def get_all(cls, limit, skip, **filter_by) -> model_schema:
         async with await create_session() as session:
             query = select(cls.model.__table__.columns)
             result = await session.execute(query)
@@ -29,7 +30,7 @@ class BaseRepository(AbstractRepository):
             return [elem for elem in mapping_result]
 
     @classmethod
-    async def get_one_or_none(cls, **filter_by):
+    async def get_one_or_none(cls, **filter_by) -> model_schema:
         async with await create_session() as session:
             query = select(cls.model.__table__.columns).filter_by(**filter_by)
             result = await session.execute(query)
@@ -44,7 +45,7 @@ class BaseRepository(AbstractRepository):
             await session.commit()
 
     @classmethod
-    async def update(cls, id_, **values) -> id:
+    async def update(cls, id_, **values) -> int:
         async with await create_session() as session:
             query = (
                 update(cls.model)
@@ -55,3 +56,11 @@ class BaseRepository(AbstractRepository):
             result = await session.execute(query)
             await session.commit()
             return result.scalar()
+
+    @classmethod
+    async def delete(cls, id_) -> bool:
+        async with await create_session() as session:
+            query = delete(cls.model).filter_by(id=id_)
+            await session.execute(query)
+            await session.commit()
+            return True

@@ -1,10 +1,13 @@
+from pathlib import Path
 from typing import Annotated
 
+import aiofiles.os as aios
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 
 from audioupload.core.security import (
     authenticate_user,
     get_user_local_data_from_token,
+    get_user_yandex_data_from_token,
 )
 from audioupload.repository.audiofile import AudioFileRepository
 from audioupload.repository.role import RoleRepository
@@ -26,11 +29,12 @@ async def get_user(
     return {
         "user_id": user["user_id"],
         "name": user["first_name"],
-        "files": [elem["path"].split("/")[-1] for elem in files],
+        "filenames": [elem["path"].split("/")[-1] for elem in files],
+        "filepaths": [elem["path"] for elem in files],
     }
 
 
-@user_router.patch("/edit")
+@user_router.patch("/user_edit")
 async def edit_user(
     token: Annotated[str | None, Header(), Depends(authenticate_user)],
     user: UserSchema,
@@ -55,3 +59,36 @@ async def edit_user(
     )
 
     return res
+
+
+@user_router.delete("/user_delete")
+async def delete_user(
+    token: Annotated[str | None, Header(), Depends(authenticate_user)],
+    candidate_id: int,
+):
+    user_data = await get_user_local_data_from_token(token)
+    user_role = await RoleRepository.get_one_or_none(role_id=user_data.role_id)
+
+    if user_role.name != "superuser":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Not allowed!")
+
+    if not await UserRepository.get_one_or_none(user_id=candidate_id):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found!")
+
+    candidate_data = await get_user_yandex_data_from_token(token)
+    CANDIDATE_DIR = Path(f"audioupload/static/audiofiles/{candidate_data.id}")
+
+    async def delete_recursive(p: Path):
+        if await aios.path.isdir(p):
+            for entry in await aios.listdir(p):
+                await delete_recursive(p / entry)
+            await aios.rmdir(p)
+        else:
+            await aios.remove(p)
+
+    try:
+        await delete_recursive(CANDIDATE_DIR)
+    except FileNotFoundError:
+        pass
+
+    return await UserRepository.delete(candidate_id)
