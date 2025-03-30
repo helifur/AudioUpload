@@ -21,6 +21,14 @@ user_router = APIRouter()
 async def get_user(
     token: Annotated[str | None, Header(), Depends(authenticate_user)],
 ):
+    """Get user data
+
+    Args:
+        token: access_token
+
+    Returns:
+        yandex user id, first name, filenames and path to user's files
+    """
     user = await get_user_local_data_from_token(token)
     files = await AudioFileRepository.get_all(
         owner_id=user["user_id"], limit=0, skip=0
@@ -39,6 +47,19 @@ async def edit_user(
     token: Annotated[str | None, Header(), Depends(authenticate_user)],
     user: UserSchema,
 ):
+    """Edit necessary user data
+
+    Args:
+        token: access token
+        user: user data
+
+    Returns:
+        User id in local database
+
+    Raises:
+        HTTPException: if user tries to update prohibited fields,
+        such as user_id or role_id (if user isn't superuser)
+    """
     user_data = await get_user_local_data_from_token(token)
     stored_user_model = UserSchema(**user_data)
     update_data = user.dict(exclude_unset=True)
@@ -66,6 +87,18 @@ async def delete_user(
     token: Annotated[str | None, Header(), Depends(authenticate_user)],
     candidate_yandex_id: str,
 ):
+    """Delete user and his files
+
+    Args:
+        token: access_token
+        candidate_yandex_id: candidate's yandex user id
+
+    Returns:
+        True if deleted, false if not deleted
+
+    Raises:
+        HTTPException: if user isn't superuser or candidate not found
+    """
     user_data = await get_user_local_data_from_token(token)
     user_role = await RoleRepository.get_one_or_none(role_id=user_data.role_id)
 

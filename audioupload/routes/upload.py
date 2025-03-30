@@ -27,7 +27,19 @@ async def upload_file(
     file: UploadFile,
     filename: Optional[str] = None,
 ):
+    """Uploading file from authorized user
 
+    Args:
+        token: access token
+        file: file
+        filename: optional filename, default - name of the uploading file
+
+    Returns:
+        File content type
+
+    Raises:
+        HTTPException: if user tries to upload non-audio file
+    """
     if not file.content_type.startswith("audio"):
         raise HTTPException(
             status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, "Invalid file format!"

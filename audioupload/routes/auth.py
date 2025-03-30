@@ -1,4 +1,3 @@
-import logging
 import os
 
 from dotenv import load_dotenv
@@ -19,6 +18,14 @@ load_dotenv()
 
 @auth_router.post("/auth")
 async def auth(secret_code: str):
+    """Authorize user
+
+    Args:
+        secret_code: code derived from the guide
+
+    Returns:
+        access_token, refresh_token and metadata
+    """
     yandex_oauth = AsyncYandexOAuth(
         client_id=os.getenv("CLIENT_ID"),
         client_secret=os.getenv("CLIENT_SECRET"),
@@ -43,6 +50,14 @@ async def auth(secret_code: str):
 
 @auth_router.post("/refresh")
 async def refresh(yandex_user_id: str):
+    """Get new access and refresh token
+
+    Args:
+        yandex_user_id: user id in yandex
+
+    Returns:
+        New access and refresh tokens, metadata
+    """
     yandex_oauth = AsyncYandexOAuth(
         client_id=os.getenv("CLIENT_ID"),
         client_secret=os.getenv("CLIENT_SECRET"),

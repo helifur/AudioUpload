@@ -33,23 +33,6 @@ async def run_migrations():
         logging.error(f"Migration failed: {stderr.decode()}")
 
 
-async def revert_migrations():
-    process = await asyncio.create_subprocess_exec(
-        "alembic",
-        "downgrade",
-        "-1",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-
-    stdout, stderr = await process.communicate()
-
-    if process.returncode == 0:
-        logging.info("Migrations downgraded successfully.")
-    else:
-        logging.error(f"Migration downgrading failed: {stderr.decode()}")
-
-
 async def global_init() -> None:
     """Initialize a database"""
     global __factory
@@ -83,7 +66,3 @@ async def create_session() -> AsyncSession:
     """Create a session"""
     global __factory
     return __factory()
-
-
-async def global_stop():
-    await revert_migrations()

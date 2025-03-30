@@ -8,6 +8,7 @@ __factory = None
 
 
 async def init_redis():
+    """Creates Redis client"""
     global __factory
 
     if __factory:
@@ -24,8 +25,10 @@ async def init_redis():
 
 
 async def get_connection():
+    """Returns Redis connection"""
     return __factory
 
 
 async def stop_connection():
+    """Stops Redis client and connections"""
     await __factory.close()
